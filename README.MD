@@ -3,7 +3,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Eliel0328/2021-B065-Extension">
+  <a href="https://github.com/Eliel0328/2021-B065-Servidor-Web">
     <img src="./icon/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -11,12 +11,12 @@
   Trabajo Terminal 2021-B065: Detector de texto ofensivo durante la navegación Web - Servidor Web</h3>
 
   <p align="center">
-  <a href="https://github.com/Eliel0328/2021-B065-Extension"><strong>Revisar documento técnico »</strong></a>
+  <a href="https://github.com/Eliel0328/2021-B065-Servidor-Web"><strong>Revisar documento técnico »</strong></a>
   <br>
   <br>
-  <a href="https://github.com/Eliel0328/2021-B065-Extension/issues">Reportar Error</a>
+  <a href="https://github.com/Eliel0328/2021-B065-Servidor-Web/issues">Reportar Error</a>
     ·
-    <a href="https://github.com/Eliel0328/2021-B065-Extension/issues">Solicitar Función</a>
+    <a href="https://github.com/Eliel0328/2021-B065-Servidor-Web/issues">Solicitar Función</a>
   </p>
 </div>
 
@@ -102,10 +102,10 @@ Este es un ejemplo de configuracion.
 
 _A continuación se muestran algunas opciones del proceso de instalación_
 
-
+`
 2. Clonar el repositorio.
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/Eliel0328/2021-B065-Servidor-Web.git
    ```
 3. Instalar los paquetes necesario NPM.
    ```sh
@@ -118,4 +118,4 @@ _A continuación se muestran algunas opciones del proceso de instalación_
       JWT_SECRET = {Clave} 
    ```
 
-
+<p align="right">(<a href="#readme-top">volver al inicio</a>)</p>
