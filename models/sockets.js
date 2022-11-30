@@ -4,6 +4,7 @@ const datosClasificacion = require('../models/datosclasificacionModel');
 const pagina = require('../models/paginaModel');
 const tutor = require('../models/tutorModel');
 const visitaNoPermitida = require('../models/visitaNoPermitidaModel');
+const tiempoDeConexion = require('./tiempoDeConexionModel');
 
 //  Arreglo de etiquetas para mostrar en el front
 const setTags = (x1, x2, x3, tipo) => {
@@ -130,6 +131,42 @@ const organizeContent = (body, id) => {
     return { segmentosDeContenido, noIncidencias };
 };
 
+const saveIntialTime = async (idTutor, idSocket) => {
+    try {
+        const datos = new tiempoDeConexion({
+            idTutor: idTutor,
+            idSocket: idSocket,
+            tiempo: 0,
+            fecha: new Date(),
+        });
+
+        const savedData = await datos.save();
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const findAndUpdate = async (idSocket) => {
+    try {
+        const datos = await tiempoDeConexion.find({
+            idSocket: idSocket,
+        });
+
+        let aux = Math.abs(new Date().getTime() - datos[0].fecha.getTime()) / 1000;
+
+        const updateDatos = await tiempoDeConexion.updateOne(
+            { _id: datos[0]._id },
+            {
+                $set: {
+                    tiempo: aux,
+                },
+            }
+        );
+    } catch (err) {
+        console.error(err);
+    }
+};
+
 class Sockets {
     constructor(io) {
         this.io = io;
@@ -140,10 +177,11 @@ class Sockets {
         //  Manejar conexiones de clientes
         //  Un dispositivo se ha conectado a nuestra aplicacion
         this.io.on('connection', (socket) => {
-            console.log('Cliente Conectado ', socket.id);
-            socket.emit('mensaje-bienvenida', {
-                msg: 'Bienvenido',
-                fecha: new Date(),
+            console.log('Cliente Conectado: ', socket.id);
+
+            //  Para registrar el inicio de la conexion de la extension por dia
+            socket.on('mensaje-bienvenida', async (data) => {
+                await saveIntialTime(data.user.id, socket.id);
             });
 
             // Mensaje que recibe todo el contenido enviado por la extension
@@ -212,6 +250,12 @@ class Sockets {
                 // IO es para hacer referencia a todos los clientes
                 // Conectadas al namespace
                 this.io.emit('mensaje-server', data);
+            });
+
+            //  Para registrar el tiempo de conexion de la extension por dia
+            socket.on('disconnect', (reason) => {
+                console.log('Cliente desconectado: ', socket.id);
+                findAndUpdate(socket.id);
             });
         });
     }
