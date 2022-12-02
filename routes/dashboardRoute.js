@@ -29,10 +29,8 @@ const separateByDays = (inicial, final, datos) => {
     let actual = new Date(inicial);
 
     let limit = getDaysBeteenTwoDate(inicial, final);
-    console.log(limit);
 
     for (let i = 0; i <= limit; ++i) {
-        console.log(actual);
         let aux = datos.filter((e) => checkTheSameDate(e.fechaHora, actual));
         daysOfWeek.push(aux);
         actual = addDays(actual, 1);
@@ -107,32 +105,35 @@ const getNoPermitidaByTutor = async (idTutor, date) => {
 
 const frequencyDistribution = (tabla) => {
     const map = {};
-    for(let i = 0; i < tabla.length; i++){
-       map[tabla[i].dominio] = (map[tabla[i].dominio] || 0) + 1;
-    };
+    for (let i = 0; i < tabla.length; i++) {
+        map[tabla[i].dominio] = (map[tabla[i].dominio] || 0) + 1;
+    }
 
     return map;
- };
+};
 
 //  Enpoints para el dashboard
-router.get('/getIncidenciasByWeek/:tutorId', async (req, res) => {
-    try {
-        let inicial = req.body.fecha_inicial;
-        let final = req.body.fecha_final;
+router.get(
+    '/getIncidenciasByWeek/:tutorId/:fecha_inicial/:fecha_final',
+    async (req, res) => {
+        try {
+            let inicial = req.params.fecha_inicial;
+            let final = req.params.fecha_final;
 
-        const datos = await datosClasificacion.find({
-            idTutor: req.params.tutorId,
-            fechaHora: {
-                $gte: new Date(inicial),
-                $lte: new Date(final),
-            },
-        });
+            const datos = await datosClasificacion.find({
+                idTutor: req.params.tutorId,
+                fechaHora: {
+                    $gte: new Date(inicial),
+                    $lte: new Date(final),
+                },
+            });
 
-        res.status(200).json(setSumByWeek(inicial, final, datos));
-    } catch (err) {
-        res.json({ message: err });
+            res.status(200).json(setSumByWeek(inicial, final, datos));
+        } catch (err) {
+            res.json({ message: err });
+        }
     }
-});
+);
 
 // Obtener las incidencias solo por un dia
 router.get('/getTiposIncidencias/:tutorId', async (req, res) => {
@@ -174,7 +175,7 @@ router.get('/getNoPermitidas/:tutorId', async (req, res) => {
             console.log(i, actual);
             const aux = await getNoPermitidaByTutor(req.params.tutorId, actual);
             // makeASet(aux)
-            tabla.push(frequencyDistribution(aux))
+            tabla.push(frequencyDistribution(aux));
             actual = addDays(actual, 1);
         }
 
