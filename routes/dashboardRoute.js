@@ -136,30 +136,33 @@ router.get(
 );
 
 // Obtener las incidencias solo por un dia
-router.get('/getTiposIncidencias/:tutorId', async (req, res) => {
-    try {
-        let inicial = req.body.fecha_inicial;
-        let final = req.body.fecha_final;
+router.get(
+    '/getTiposIncidencias/:tutorId/:fecha_inicial/:fecha_final',
+    async (req, res) => {
+        try {
+            let inicial = req.params.fecha_inicial;
+            let final = req.params.fecha_final;
 
-        const datos = await datosClasificacion.find({
-            idTutor: req.params.tutorId,
-            fechaHora: {
-                $gte: new Date(inicial),
-                $lte: new Date(final),
-            },
-        });
+            const datos = await datosClasificacion.find({
+                idTutor: req.params.tutorId,
+                fechaHora: {
+                    $gte: new Date(inicial),
+                    $lte: new Date(final),
+                },
+            });
 
-        const posts = [];
-        for (const username of datos) {
-            const userPosts = await getIncidencia(username._id);
-            posts.push(userPosts);
+            const posts = [];
+            for (const username of datos) {
+                const userPosts = await getIncidencia(username._id);
+                posts.push(userPosts);
+            }
+
+            res.status(200).json(posts[0]);
+        } catch (err) {
+            res.json({ message: err });
         }
-
-        res.status(200).json(posts[0]);
-    } catch (err) {
-        res.json({ message: err });
     }
-});
+);
 
 // Obtener las paginas nos permitidas
 router.get('/getNoPermitidas/:tutorId', async (req, res) => {
