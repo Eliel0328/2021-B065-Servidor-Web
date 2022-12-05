@@ -4,6 +4,7 @@ const tutor = require('../models/tutorModel');
 const datosClasificacion = require('../models/datosclasificacionModel');
 const segmentoContenidoModel = require('../models/segmentoContenidoModel');
 const visitaNoPermitidaModel = require('../models/visitaNoPermitidaModel');
+const { DateTime } = require('luxon');
 
 const addDays = (actual, days) => {
     let aux = new Date(actual);
@@ -16,7 +17,6 @@ const getDaysBeteenTwoDate = (date1, date2) => {
 };
 
 const checkTheSameDate = (date1, date2) => {
-    // console.log(date1, date2);
     return (
         date1.getFullYear() === date2.getFullYear() &&
         date1.getMonth() === date2.getMonth() &&
@@ -73,27 +73,26 @@ const getIncidencia = async (idDatosClasificados) => {
 
         return [a1, a2, a3];
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 };
 
 const getNoPermitidaByTutor = async (idTutor, date) => {
     try {
-        let auxDate = new Date(date);
-        let stringDate = `${auxDate.getFullYear()}-${
-            auxDate.getMonth() + 1
-        }-${auxDate.getDate()}`;
-        let stringDateFinal = `${auxDate.getFullYear()}-${auxDate.getMonth() + 1}-${
-            (auxDate.getDate() + 1) % 31
-        }`;
+        let a = new Date(date);
+
+        let actual = DateTime.fromObject({
+            year: a.getFullYear(),
+            month: a.getDate(),
+            day: a.getMonth() + 1,
+        });
+        let last = actual.plus({ days: 1 });
 
         const aux = await visitaNoPermitidaModel.find({
             idTutor: idTutor,
-            // dominio: dominio,
-            // fechaHora: new Date(stringDate),
             fechaHora: {
-                $gte: new Date(stringDate),
-                $lte: new Date(stringDateFinal),
+                $gte: actual,
+                $lte: last,
             },
         });
 
@@ -170,16 +169,21 @@ router.get('/getNoPermitidas/:tutorId/:fecha_inicial/:fecha_final', async (req, 
         let inicial = req.params.fecha_inicial;
         let final = req.params.fecha_final;
 
-        let limit = getDaysBeteenTwoDate(inicial, final);
-        let actual = new Date(inicial);
+        let a = new Date(inicial);
+        let actual = DateTime.fromObject({
+            year: a.getFullYear(),
+            month: a.getMonth() + 1,
+            day: a.getDate(),
+        });
 
         const tabla = [];
-        for (let i = 0; i < limit; ++i) {
-            console.log(i, actual);
-            const aux = await getNoPermitidaByTutor(req.params.tutorId, actual);
-            // makeASet(aux)
+        for (let i = 0; i < 7; ++i) {
+            const aux = await getNoPermitidaByTutor(
+                req.params.tutorId,
+                actual.toLocaleString()
+            );
             tabla.push(frequencyDistribution(aux));
-            actual = addDays(actual, 1);
+            actual = actual.plus({ day: 1 });
         }
 
         res.status(200).json(tabla);
