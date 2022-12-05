@@ -5,6 +5,7 @@ const pagina = require('../models/paginaModel');
 const tutor = require('../models/tutorModel');
 const visitaNoPermitida = require('../models/visitaNoPermitidaModel');
 const tiempoDeConexion = require('./tiempoDeConexionModel');
+const { DateTime, Interval } = require('luxon');
 
 //  Arreglo de etiquetas para mostrar en el front
 const setTags = (x1, x2, x3, tipo) => {
@@ -133,11 +134,13 @@ const organizeContent = (body, id) => {
 
 const saveIntialTime = async (idTutor, idSocket) => {
     try {
+        const time = DateTime.now().minus({ hours: 6 });
+        // const time = DateTime.now()
         const datos = new tiempoDeConexion({
             idTutor: idTutor,
             idSocket: idSocket,
             tiempo: 0,
-            fecha: new Date(),
+            fecha: time,
         });
 
         const savedData = await datos.save();
@@ -152,16 +155,32 @@ const findAndUpdate = async (idSocket) => {
             idSocket: idSocket,
         });
 
-        let aux = Math.abs(new Date().getTime() - datos[0].fecha.getTime()) / 1000;
+        if (datos.length !== 0) {
+            // Reajustar horario
+            let a = new Date(datos[0].fecha);
+            const aux1 = DateTime.fromObject({
+                year: a.getFullYear(),
+                month: a.getMonth() + 1,
+                day: a.getDate(),
+                hour: (a.getHours() + 6) % 24,
+                minute: a.getMinutes(),
+                second: a.getSeconds(),
+            });
+            const aux2 = DateTime.now();
+            const diff = aux1.diff(aux2, ['seconds']);
+            let aux = Math.abs(diff.toObject().seconds);
 
-        const updateDatos = await tiempoDeConexion.updateOne(
-            { _id: datos[0]._id },
-            {
-                $set: {
-                    tiempo: aux,
-                },
-            }
-        );
+            const updateDatos = await tiempoDeConexion.updateOne(
+                { _id: datos[0]._id },
+                {
+                    $set: {
+                        tiempo: aux,
+                    },
+                }
+            );
+        } else {
+            console.log('No se encontro registro de conexion del socket desconectado');
+        }
     } catch (err) {
         console.error(err);
     }
@@ -181,6 +200,7 @@ class Sockets {
 
             //  Para registrar el inicio de la conexion de la extension por dia
             socket.on('mensaje-bienvenida', async (data) => {
+                console.log('Registro de conexion - Cliente Conectado: ', socket.id);
                 await saveIntialTime(data.user.id, socket.id);
             });
 

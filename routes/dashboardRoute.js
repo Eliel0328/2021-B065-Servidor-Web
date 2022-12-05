@@ -165,10 +165,10 @@ router.get(
 );
 
 // Obtener las paginas nos permitidas
-router.get('/getNoPermitidas/:tutorId', async (req, res) => {
+router.get('/getNoPermitidas/:tutorId/:fecha_inicial/:fecha_final', async (req, res) => {
     try {
-        let inicial = req.body.fecha_inicial;
-        let final = req.body.fecha_final;
+        let inicial = req.params.fecha_inicial;
+        let final = req.params.fecha_final;
 
         let limit = getDaysBeteenTwoDate(inicial, final);
         let actual = new Date(inicial);
