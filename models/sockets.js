@@ -100,7 +100,7 @@ const organizeContent = (body, id) => {
 
     body.clasificacion.forEach((element) => {
         let aux = element[0] + element[1] + element[2];
-        if (aux >= 2) {
+        if (aux >= 1) {
             noIncidencias += aux;
             const datos = new segmentoContenido({
                 idDatosClasificados: id,
@@ -206,7 +206,11 @@ class Sockets {
 
             // Mensaje que recibe todo el contenido enviado por la extension
             socket.on('mensaje-cliente', async (data) => {
-                console.log('Envio de informacion: ', data.idTutor, data.fechaHora);
+                data.fechaHora = DateTime.now().minus({ hours: 6 });
+                // data.fechaHora = DateTime.now()
+                const time = DateTime.now();
+                const stringDate = `${time.year}-${time.month}-${time.day}  ${time.hour}:${time.minute}:${time.second}`;
+                console.log('Envio de informacion: ', data.idTutor, stringDate);
                 // Socket emite solo al socket que tiene referenciado
 
                 if (!(await checkExtension(data.idTutor))) {
@@ -252,7 +256,7 @@ class Sockets {
                             );
 
                             if (incidencias <= segmentosDeContenido.length) {
-                                console.log('Guardado', data.fechaHora);
+                                console.log('Guardado', stringDate);
                                 datosClasi.noIncidencias = noIncidencias;
 
                                 const savedDataDatosClasificacion =
@@ -261,7 +265,7 @@ class Sockets {
                                     const savedData = await e.save();
                                 });
                             } else {
-                                console.log('No guardado', data.fechaHora);
+                                console.log('No guardado', stringDate);
                             }
                         }
                     }
