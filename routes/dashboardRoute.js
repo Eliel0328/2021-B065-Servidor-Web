@@ -91,8 +91,8 @@ const getNoPermitidaByTutor = async (idTutor, date) => {
         const aux = await visitaNoPermitidaModel.find({
             idTutor: idTutor,
             fechaHora: {
-                $gte: actual,
-                $lte: last,
+                $gte: actual.minus({ hours: 6 }),
+                $lte: last.minus({ hours: 6 }),
             },
         });
 
@@ -177,7 +177,7 @@ router.get('/getNoPermitidas/:tutorId/:fecha_inicial/:fecha_final', async (req, 
         });
 
         const tabla = [];
-        for (let i = 0; i < 7; ++i) {
+        for (let i = 0; i < 1; ++i) {
             const aux = await getNoPermitidaByTutor(
                 req.params.tutorId,
                 actual.toLocaleString()
@@ -188,7 +188,7 @@ router.get('/getNoPermitidas/:tutorId/:fecha_inicial/:fecha_final', async (req, 
 
         res.status(200).json(tabla);
     } catch (err) {
-        res.json({ message: err });
+        res.status(404).json({ message: 'Datos no encontrados' });
     }
 });
 
