@@ -192,30 +192,35 @@ router.get('/getNoPermitidas/:tutorId/:fecha_inicial/:fecha_final', async (req, 
     }
 });
 
-const getVisitaNoPermitida = async (idTutor, dominio, date) => {
-    try {
-        let auxDate = new Date(date);
-        let stringDate = `${auxDate.getFullYear()}-${
-            auxDate.getMonth() + 1
-        }-${auxDate.getDate()}`;
-        let stringDateFinal = `${auxDate.getFullYear()}-${auxDate.getMonth() + 1}-${
-            (auxDate.getDate() + 1) % 31
-        }`;
 
-        const aux = await visitaNoPermitida.find({
-            idTutor: idTutor,
-            dominio: dominio,
-            // fechaHora: new Date(stringDate),
-            fechaHora: {
-                $gte: new Date(stringDate),
-                $lte: new Date(stringDateFinal),
-            },
-        });
+router.get(
+    '/getTiposIncidenciasByWeek/:tutorId/:fecha_inicial/:fecha_final',
+    async (req, res) => {
+        try {
+            let inicial = req.params.fecha_inicial;
+            let final = req.params.fecha_final;
 
-        return aux.length;
-    } catch (err) {
-        console.error(err);
+            const datos = await datosClasificacion.find({
+                idTutor: req.params.tutorId,
+                fechaHora: {
+                    $gte: new Date(inicial),
+                    $lte: new Date(final),
+                },
+            });
+
+            // const posts = [];
+            // for (const username of datos) {
+            //     const userPosts = await getIncidencia(username._id);
+            //     posts.push(userPosts);
+            // }
+
+            console.log(datos);
+            // res.status(200).json(posts[0]);
+            res.status(200).json({});
+        } catch (err) {
+            res.json({ message: err });
+        }
     }
-};
+);
 
 module.exports = router;
