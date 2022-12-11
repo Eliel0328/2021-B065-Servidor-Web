@@ -5,6 +5,7 @@ const datosClasificacion = require('../models/datosclasificacionModel');
 const segmentoContenidoModel = require('../models/segmentoContenidoModel');
 const visitaNoPermitidaModel = require('../models/visitaNoPermitidaModel');
 const { DateTime } = require('luxon');
+const tiempoDeConexionModel = require('../models/tiempoDeConexionModel');
 
 const addDays = (actual, days) => {
     let aux = new Date(actual);
@@ -111,6 +112,27 @@ const frequencyDistribution = (tabla) => {
     return map;
 };
 
+const onlyDate = (a) => {
+    let aux2 = a.getMonth() + 1 < 10 ? `0${a.getMonth() + 1}` : a.getMonth() + 1;
+    let aux3 = a.getDate() < 10 ? `0${a.getDate()}` : a.getDate();
+    return `${a.getFullYear()}-${aux2}-${aux3}`;
+};
+
+const distribuirTiempo = (tabla, actual) => {
+    const map = {};
+    for (let i = 0; i < 7; i++) {
+        actual = actual.plus({ days: 1 });
+        map[onlyDate(new Date(actual))] = 0;
+    }
+
+    for (let i = 0; i < tabla.length; i++) {
+        let aux = onlyDate(tabla[i].fecha);
+        map[aux] = (map[aux] || 0) + tabla[i].tiempo;
+    }
+
+    return map;
+};
+
 //  Enpoints para el dashboard
 router.get(
     '/getIncidenciasByWeek/:tutorId/:fecha_inicial/:fecha_final',
@@ -192,7 +214,44 @@ router.get('/getNoPermitidas/:tutorId/:fecha_inicial/:fecha_final', async (req, 
     }
 });
 
+// Obtener el tiempo de conexion
+router.get(
+    '/getTiempoDeConexion/:tutorId/:fecha_inicial/:fecha_final',
+    async (req, res) => {
+        try {
+            let inicial = req.params.fecha_inicial;
+            let final = req.params.fecha_final;
 
+            let a = new Date(inicial);
+            let actual = DateTime.fromObject({
+                year: a.getFullYear(),
+                month: a.getMonth() + 1,
+                day: a.getDate(),
+            });
+
+            let b = new Date(final);
+            let last = DateTime.fromObject({
+                year: b.getFullYear(),
+                month: b.getMonth() + 1,
+                day: b.getDate(),
+            });
+
+            const datos = await tiempoDeConexionModel.find({
+                idTutor: req.params.tutorId,
+                fecha: {
+                    $gte: actual.minus({ hours: 6 }),
+                    $lte: last.minus({ hours: 6 }),
+                },
+            });
+
+            res.status(200).json(distribuirTiempo(datos, actual));
+        } catch (err) {
+            res.status(404).json({ message: 'Datos no encontrados' });
+        }
+    }
+);
+
+// Prueba
 router.get(
     '/getTiposIncidenciasByWeek/:tutorId/:fecha_inicial/:fecha_final',
     async (req, res) => {
