@@ -8,8 +8,15 @@ const tutor = require('../models/tutorModel');
 router.post('/registrarTutor', async (req, res) => {
     try {
         //  Verificar que los datos fueron enviados
-        const { contraseña, nombre, apellidos, correo, extensionActiva, numIncidencias } =
-            req.body;
+        const {
+            contraseña,
+            nombre,
+            apellidos,
+            correo,
+            extensionActiva,
+            numIncidencias,
+            equipos,
+        } = req.body;
 
         if (
             !contraseña ||
@@ -17,7 +24,8 @@ router.post('/registrarTutor', async (req, res) => {
             !apellidos ||
             !correo ||
             !extensionActiva ||
-            !numIncidencias
+            !numIncidencias ||
+            !equipos
         ) {
             return res.status(400).json({ msg: 'DATOS_INCOMPLETOS' });
         }
@@ -40,6 +48,7 @@ router.post('/registrarTutor', async (req, res) => {
             correo: req.body.correo,
             extensionActiva: req.body.extensionActiva,
             numIncidencias: req.body.numIncidencias,
+            equipos: [req.body.equipos]
         });
 
         //  Guardar los datos del tutor
@@ -202,6 +211,18 @@ router.get('/getIncidencias/:tutorId', async (req, res) => {
         res.json(datos.numIncidencias);
     } catch (err) {
         res.json({ message: err });
+    }
+});
+
+router.patch('/addEquipo/:tutorId', async (req, res) => {
+    try {
+        const updatedTutor = await tutor.updateOne(
+            { _id: req.params.tutorId },
+            { $push: { equipos: req.body.equipo } }
+        );
+        res.status(200).json(updatedTutor);
+    } catch (err) {
+        res.status(400).json({ message: err });
     }
 });
 

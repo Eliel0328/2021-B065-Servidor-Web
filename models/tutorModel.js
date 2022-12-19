@@ -25,6 +25,10 @@ const tutorSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    equipos: {
+        type: Array,
+        required: true,
+    },
 });
 
 module.exports = mongoose.model('tutor', tutorSchema);
