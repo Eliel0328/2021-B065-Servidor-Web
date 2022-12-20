@@ -106,6 +106,41 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.patch('/actualizarPassword/:tutorId', async (req, res) => {
+    try {
+        const { contraseña, nueva_contraseña, confirmar_contraseña } = req.body;
+
+        if (!contraseña || !nueva_contraseña || !confirmar_contraseña) {
+            return res.status(404).json({ msg: 'DATOS_INCOMPLETOS' });
+        }
+
+        const tutorExiste = await tutor.findById(req.params.tutorId);
+        if (!tutorExiste) {
+            return res.status(404).json({ msg: 'TUTOR_NO_REGISTRADO' });
+        }
+
+        if (nueva_contraseña !== confirmar_contraseña) {
+            return res.status(404).json({ msg: 'DATOS_ERRONEOS_1' });
+        }
+
+        const match = await bcrypt.compare(contraseña, tutorExiste.contraseña);
+        if (!match) {
+            return res.status(401).json({ msg: 'DATOS_ERRONEOS' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHashed = await bcrypt.hash(nueva_contraseña, salt);
+
+        const updatedTutor = await tutor.updateOne(
+            { _id: req.params.tutorId },
+            { $set: { contraseña: passwordHashed } }
+        );
+        res.status(200).json(updatedTutor);
+    } catch (err) {
+        res.status(400).json({ message: err });
+    }
+});
+
 router.get('/getTutor/:tutorId', async (req, res) => {
     try {
         const actualTutor = await tutor.findById(req.params.tutorId);
