@@ -15,6 +15,7 @@ const paginaRoute = require(path.resolve(__dirname, '../routes/paginaRoute'));
 const datosclasificacionRoute = require(path.resolve(__dirname, '../routes/datosclasificacionRoute'));
 const segmentoContenidoRoute = require(path.resolve(__dirname, '../routes/segmentoContenidoRoute'));
 const dashboardRoute = require(path.resolve(__dirname, '../routes/dashboardRoute'));
+const mailRoute = require(path.resolve(__dirname, '../routes/mailRoute'));
 
 class Server {
     constructor() {
@@ -77,6 +78,7 @@ class Server {
         this.app.use('/', datosclasificacionRoute);
         this.app.use('/', segmentoContenidoRoute);
         this.app.use('/', dashboardRoute);
+        this.app.use('/', mailRoute);
         //  Puerto en el que corre el servidor
         this.server.listen(this.port, () => {
             console.log('Server Puerto: ', this.port);
