@@ -22,14 +22,12 @@ router.post('/registroPagina/:tutorId', async (req, res) => {
         console.log(req.params.tutorId,aux, aux.length, aux.length === true, aux.length !== 0);
 
         if (aux.length !== 0) {
-            console.log("Ascasc");
             if (aux[0].permitido) {
                 res.json({ msg: 'PERMITIDO_EXISTE', data: aux[0] });
             } else {
                 res.json({ msg: 'NO_PERMITIDO_EXISTE', data: aux[0] });
             }
         } else {
-            console.log("Ascasc");
             const savedData = await datos.save();
             res.json({ msg: 'NUEVO_CREADO', data: savedData });
         }
