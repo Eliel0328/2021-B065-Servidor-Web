@@ -116,6 +116,10 @@ _A continuación se muestran algunas opciones del proceso de instalación_
       PORT={Puerto}
       MONGO_URI = {Conexión de la base}
       JWT_SECRET = {Clave} 
+      AUTH_EMAIL = {emai}
+      AUTH_PASS = {password}
    ```
+
+   El correo electronico usado debe tener permitido el acceso a aplicaciones menos seguras y una contraseña generada especificamente para esta aplicación. Para esto se ingresa al siguiente enlace [Aplicaiones menos seguras.](https://www.google.com/settings/security/lesssecureapps)
 
 <p align="right">(<a href="#readme-top">volver al inicio</a>)</p>
