@@ -43,7 +43,7 @@ const getPaginaByDominio = async (idTutor, dominio) => {
 //  Compobar si un dominio debe ser analizado, registrado o ignorado
 const checkDomain = async (idTutor, dominio) => {
     try {
-        if (dominio === 'localhost') return 'NO_ANALIZAR';
+        if (dominio === 'vigilantt.tk') return 'NO_ANALIZAR';
 
         const aux = await pagina.find({ idTutor: idTutor, dominio: dominio });
 
